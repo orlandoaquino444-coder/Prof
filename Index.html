@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>ProfeFácil - Plataforma para Profesores</title>
+<style>
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f5f5f5; color: #333; line-height: 1.6; }
+.container { max-width: 1400px; margin: 0 auto; padding: 20px; }
+.header { background: linear-gradient(135deg, #1b5e20, #2e7d32); color: white; padding: 20px; border-radius: 12px; margin-bottom: 20px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.header h1 { font-size: 28px; margin-bottom: 5px; }
+.header p { opacity: 0.9; font-size: 14px; }
+.nav { display: flex; flex-wrap: wrap; gap: 10px; margin-bottom: 20px; }
+.nav button { padding: 12px 20px; background: white; border: 2px solid #1b5e20; color: #1b5e20; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; }
+.nav button:hover, .nav button.active { background: #1b5e20; color: white; }
+.card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); margin-bottom: 20px; }
+.card h2 { color: #1b5e20; margin-bottom: 15px; font-size: 22px; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px; margin-bottom: 20px; }
+.stat { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); border-left: 4px solid #1b5e20; }
+.stat .number { font-size: 32px; font-weight: bold; color: #1b5e20; }
+.stat .label { color: #666; font-size: 14px; margin-top: 5px; }
+.form-group { margin-bottom: 15px; }
+.form-group label { display: block; margin-bottom: 5px; font-weight: 600; color: #333; }
+.form-group input, .form-group select, .form-group textarea { width: 100%; padding: 10px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 14px; transition: border-color 0.3s; }
+.form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #1b5e20; }
+.btn { padding: 12px 24px; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; transition: all 0.3s; font-size: 14px; }
+.btn-primary { background: #1b5e20; color: white; }
+.btn-primary:hover { background: #2e7d32; }
+.btn-secondary { background: #e0e0e0; color: #333; }
+.btn-secondary:hover { background: #d0d0d0; }
+.btn-danger { background: #c62828; color: white; }
+.btn-danger:hover { background: #a31d1d; }
+.btn-success { background: #66bb6a; color: white; }
+.btn-success:hover { background: #4caf50; }
+table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e0e0e0; }
+th { background: #f5f5f5; font-weight: 600; color: #1b5e20; }
+tr:hover { background: #f9f9f9; }
+.badge { display: inline-block; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600; }
+.badge-success { background: #e8f5e9; color: #1b5e20; }
+.badge-warning { background: #fff3e0; color: #ef6c00; }
+.badge-danger { background: #ffebee; color: #c62828; }
+.badge-info { background: #e3f2fd; color: #1565c0; }
+.modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+.modal.active { display: flex; }
+.modal-content { background: white; padding: 30px; border-radius: 12px; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+.modal-header h2 { color: #1b5e20; }
+.close-btn { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+.toast { position: fixed; top: 20px; right: 20px; background: #1b5e20; color: white; padding: 15px 25px; border-radius: 8px; box-shadow: 0 4px 12px rgba(0,0,0,0.2); z-index: 2000; animation: slideIn 0.3s; }
+@keyframes slideIn { from { transform: translateX(400px); } to { transform: translateX(0); } }
+.empty { text-align: center; padding: 40px; color: #666; }
+.empty-icon { font-size: 48px; margin-bottom: 10px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+@media (max-width: 768px) { .grid-2 { grid-template-columns: 1fr; } .nav { flex-direction: column; } }
+.calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 5px; margin-top: 15px; }
+.calendar-header { background: #1b5e20; color: white; padding: 10px; text-align: center; font-weight: 600; border-radius: 4px; }
+.calendar-day { background: white; padding: 10px; min-height: 80px; border: 1px solid #e0e0e0; border-radius: 4px; cursor: pointer; }
+.calendar-day:hover { background: #f5f5f5; }
+.calendar-day.today { background: #e8f5e9; border-color: #1b5e20; }
+.calendar-day.other-month { opacity: 0.3; }
+.checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 10px; }
+.check-item { display: flex; align-items: center; gap: 10px; padding: 10px; background: #f5f5f5; border-radius: 8px; }
+.check-item .name { flex: 1; font-weight: 500; }
+.check-item button { padding: 6px 12px; border: 1px solid #e0e0e0; background: white; border-radius: 4px; cursor: pointer; font-size: 12px; }
+.check-item button.active { background: #1b5e20; color: white; border-color: #1b5e20; }
+</style>
+</head>
+<body>
+<div class="container">
+<div class="header">
+<h1>📚 ProfeFácil</h1>
+<p>Plataforma completa para profesores</p>
+</div>
+
+<div class="nav" id="nav">
+<button onclick="showView('dashboard')" class="active">🏠 Panel</button>
+<button onclick="showView('students')">👥 Estudiantes</button>
+<button onclick="showView('courses')">📚 Cursos</button>
+<button onclick="showView('tasks')">📝 Tareas</button>
+<button onclick="showView('grades')">📊 Calificaciones</button>
+<button onclick="showView('attendance')">✅ Asistencia</button>
+<button onclick="showView('agenda')"> Agenda</button>
+<button onclick="showView('planning')">🗂️ Planificación</button>
+<button onclick="showView('exams')"> Exámenes</button>
+<button onclick="showView('library')">📖 Biblioteca</button>
+<button onclick="showView('reports')">📈 Informes</button>
+<button onclick="showView('ai')">🤖 Asistente</button>
+<button onclick="showView('correction')">✍️ Corrección</button>
+<button onclick="showView('communication')">💬 Comunicación</button>
+<button onclick="showView('tracking')">🎯 Seguimiento</button>
+<button onclick="showView('productivity')">⚡ Productividad</button>
+<button onclick="showView('backups')">💾 Copias</button>
+<button onclick="showView('portal')">👨‍👩‍ Portal</button>
+<button onclick="showView('config')">⚙️ Configuración</button>
+</div>
+
+<div id="content"></div>
+</div>
+
+<div class="modal" id="modal">
+<div class="modal-content">
+<div class="modal-header">
+<h2 id="modalTitle">Título</h2>
+<button class="close-btn" onclick="closeModal()">×</button>
+</div>
+<div id="modalBody"></div>
+</div>
+</div>
+
+<script>
+// Base de datos local
+const DB = {
+  get(key) { try { return JSON.parse(localStorage.getItem('pf_' + key)) || []; } catch { return []; } },
+  set(key, data) { localStorage.setItem('pf_' + key, JSON.stringify(data)); },
+  getOne(key, id) { return this.get(key).find(item => item.id === id); },
+  add(key, item) { const items = this.get(key); item.id = Date.now().toString(); item.createdAt = new Date().toISOString(); items.push(item); this.set(key, items); return item; },
+  update(key, id, data) { const items = this.get(key); const index = items.findIndex(item => item.id === id); if (index !== -1) { items[index] = { ...items[index], ...data, updatedAt: new Date().toISOString() }; this.set(key, items); } },
+  delete(key, id) { const items = this.get(key).filter(item => item.id !== id); this.set(key, items); }
+};
+
+let currentView = 'dashboard';
+
+function showView(view) {
+  currentView = view;
+  document.querySelectorAll('.nav button').forEach(btn => btn.classList.remove('active'));
+  event.target.classList.add('active');
+  render();
+}
+
+function render() {
+  const content = document.getElementById('content');
+  switch(currentView) {
+    case 'dashboard': content.innerHTML = renderDashboard(); break;
+    case 'students': content.innerHTML = renderStudents(); break;
+    case 'courses': content.innerHTML = renderCourses(); break;
+    case 'tasks': content.innerHTML = renderTasks(); break;
+    case 'grades': content.innerHTML = renderGrades(); break;
+    case 'attendance': content.innerHTML = renderAttendance(); break;
+    case 'agenda': content.innerHTML = renderAgenda(); break;
+    case 'planning': content.innerHTML = renderPlanning(); break;
+    case 'exams': content.innerHTML = renderExams(); break;
+    case 'library': content.innerHTML = renderLibrary(); break;
+    case 'reports': content.innerHTML = renderReports(); break;
+    case 'ai': content.innerHTML = renderAI(); break;
+    case 'correction': content.innerHTML = renderCorrection(); break;
+    case 'communication': content.innerHTML = renderCommunication(); break;
+    case 'tracking': content.innerHTML = renderTracking(); break;
+    case 'productivity': content.innerHTML = renderProductivity(); break;
+    case 'backups': content.innerHTML = renderBackups(); break;
+    case 'portal': content.innerHTML = renderPortal(); break;
+    case 'config': content.innerHTML = renderConfig(); break;
+  }
+}
+
+function renderDashboard() {
+  const students = DB.get('students');
+  const courses = DB.get('courses');
+  const tasks = DB.get('tasks');
+  const grades = DB.get('grades');
+  const attendance = DB.get('attendance');
+  const pendingTasks = tasks.filter(t => t.status !== 'completed').length;
+  const avgGrade = grades.length ? (grades.reduce((sum, g) => sum + (g.score / g.max * 10), 0) / grades.length).toFixed(1) : '—';
+  
+  return `
+    <div class="stats">
+      <div class="stat"><div class="number">${students.length}</div><div class="label">Estudiantes</div></div>
+      <div class="stat"><div class="number">${courses.length}</div><div class="label">Cursos</div></div>
+      <div class="stat"><div class="number">${pendingTasks}</div><div class="label">Tareas pendientes</div></div>
+      <div class="stat"><div class="number">${avgGrade}</div><div class="label">Promedio general</div></div>
+    </div>
+    <div class="card">
+      <h2>Bienvenido a ProfeFácil</h2>
+      <p>Esta plataforma te ayuda a gestionar estudiantes, cursos, tareas, calificaciones y mucho más. Todos los datos se guardan automáticamente en tu navegador.</p>
+    </div>
+  `;
+}
+
+function renderStudents() {
+  const students = DB.get('students');
+  return `
+    <div class="card">
+      <h2>Estudiantes</h2>
+      <button class="btn btn-primary" onclick="openStudentModal()">➕ Nuevo estudiante</button>
+      ${students.length === 0 ? '<div class="empty"><div class="empty-icon"></div><p>No hay estudiantes registrados</p></div>' : `
+        <table>
+          <thead><tr><th>Nombre</th><th>Email</th><th>Curso</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${students.map(s => `
+              <tr>
+                <td>${s.name}</td>
+                <td>${s.email || '—'}</td>
+                <td>${s.courseId ? DB.getOne('courses', s.courseId)?.name || '—' : '—'}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editStudent('${s.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteStudent('${s.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openStudentModal(id = null) {
+  const student = id ? DB.getOne('students', id) : {};
+  const courses = DB.get('courses');
+  document.getElementById('modalTitle').textContent = id ? 'Editar estudiante' : 'Nuevo estudiante';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveStudent(event, '${id || ''}')">
+      <div class="form-group"><label>Nombre *</label><input name="name" value="${student.name || ''}" required></div>
+      <div class="form-group"><label>Email</label><input type="email" name="email" value="${student.email || ''}"></div>
+      <div class="form-group"><label>Teléfono</label><input name="phone" value="${student.phone || ''}"></div>
+      <div class="form-group"><label>Curso</label><select name="courseId"><option value="">Sin curso</option>${courses.map(c => `<option value="${c.id}" ${student.courseId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Notas</label><textarea name="notes">${student.notes || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveStudent(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('students', id, data); showToast('Estudiante actualizado'); }
+  else { DB.add('students', data); showToast('Estudiante creado'); }
+  closeModal(); render();
+}
+
+function editStudent(id) { openStudentModal(id); }
+function deleteStudent(id) { if (confirm('¿Eliminar este estudiante?')) { DB.delete('students', id); showToast('Estudiante eliminado'); render(); } }
+
+function renderCourses() {
+  const courses = DB.get('courses');
+  return `
+    <div class="card">
+      <h2>Cursos</h2>
+      <button class="btn btn-primary" onclick="openCourseModal()">➕ Nuevo curso</button>
+      ${courses.length === 0 ? '<div class="empty"><div class="empty-icon">📚</div><p>No hay cursos registrados</p></div>' : `
+        <table>
+          <thead><tr><th>Nombre</th><th>Nivel</th><th>Descripción</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${courses.map(c => `
+              <tr>
+                <td>${c.name}</td>
+                <td>${c.level || '—'}</td>
+                <td>${c.description || '—'}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editCourse('${c.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteCourse('${c.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openCourseModal(id = null) {
+  const course = id ? DB.getOne('courses', id) : {};
+  document.getElementById('modalTitle').textContent = id ? 'Editar curso' : 'Nuevo curso';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveCourse(event, '${id || ''}')">
+      <div class="form-group"><label>Nombre *</label><input name="name" value="${course.name || ''}" required></div>
+      <div class="form-group"><label>Nivel</label><input name="level" value="${course.level || ''}"></div>
+      <div class="form-group"><label>Descripción</label><textarea name="description">${course.description || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveCourse(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('courses', id, data); showToast('Curso actualizado'); }
+  else { DB.add('courses', data); showToast('Curso creado'); }
+  closeModal(); render();
+}
+
+function editCourse(id) { openCourseModal(id); }
+function deleteCourse(id) { if (confirm('¿Eliminar este curso?')) { DB.delete('courses', id); showToast('Curso eliminado'); render(); } }
+
+function renderTasks() {
+  const tasks = DB.get('tasks');
+  return `
+    <div class="card">
+      <h2>Tareas</h2>
+      <button class="btn btn-primary" onclick="openTaskModal()"> Nueva tarea</button>
+      ${tasks.length === 0 ? '<div class="empty"><div class="empty-icon">📝</div><p>No hay tareas registradas</p></div>' : `
+        <table>
+          <thead><tr><th>Título</th><th>Curso</th><th>Fecha límite</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${tasks.map(t => `
+              <tr>
+                <td>${t.title}</td>
+                <td>${t.courseId ? DB.getOne('courses', t.courseId)?.name || '—' : '—'}</td>
+                <td>${t.dueDate || '—'}</td>
+                <td><span class="badge badge-${t.status === 'completed' ? 'success' : t.status === 'pending' ? 'warning' : 'info'}">${t.status || 'pending'}</span></td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editTask('${t.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteTask('${t.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openTaskModal(id = null) {
+  const task = id ? DB.getOne('tasks', id) : {};
+  const courses = DB.get('courses');
+  document.getElementById('modalTitle').textContent = id ? 'Editar tarea' : 'Nueva tarea';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveTask(event, '${id || ''}')">
+      <div class="form-group"><label>Título *</label><input name="title" value="${task.title || ''}" required></div>
+      <div class="form-group"><label>Descripción</label><textarea name="description">${task.description || ''}</textarea></div>
+      <div class="form-group"><label>Curso</label><select name="courseId"><option value="">Sin curso</option>${courses.map(c => `<option value="${c.id}" ${task.courseId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Fecha límite</label><input type="date" name="dueDate" value="${task.dueDate || ''}"></div>
+      <div class="form-group"><label>Estado</label><select name="status"><option value="pending" ${task.status === 'pending' ? 'selected' : ''}>Pendiente</option><option value="in_progress" ${task.status === 'in_progress' ? 'selected' : ''}>En progreso</option><option value="completed" ${task.status === 'completed' ? 'selected' : ''}>Completada</option></select></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveTask(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('tasks', id, data); showToast('Tarea actualizada'); }
+  else { DB.add('tasks', data); showToast('Tarea creada'); }
+  closeModal(); render();
+}
+
+function editTask(id) { openTaskModal(id); }
+function deleteTask(id) { if (confirm('¿Eliminar esta tarea?')) { DB.delete('tasks', id); showToast('Tarea eliminada'); render(); } }
+
+function renderGrades() {
+  const grades = DB.get('grades');
+  const students = DB.get('students');
+  return `
+    <div class="card">
+      <h2>Calificaciones</h2>
+      <button class="btn btn-primary" onclick="openGradeModal()">➕ Nueva calificación</button>
+      ${grades.length === 0 ? '<div class="empty"><div class="empty-icon">📊</div><p>No hay calificaciones registradas</p></div>' : `
+        <table>
+          <thead><tr><th>Estudiante</th><th>Evaluación</th><th>Puntuación</th><th>Máximo</th><th>Porcentaje</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${grades.map(g => {
+              const student = DB.getOne('students', g.studentId);
+              const percentage = ((g.score / g.max) * 100).toFixed(1);
+              return `
+                <tr>
+                  <td>${student?.name || '—'}</td>
+                  <td>${g.evaluation || '—'}</td>
+                  <td>${g.score}</td>
+                  <td>${g.max}</td>
+                  <td><span class="badge badge-${percentage >= 60 ? 'success' : 'danger'}">${percentage}%</span></td>
+                  <td>
+                    <button class="btn btn-secondary" onclick="editGrade('${g.id}')">Editar</button>
+                    <button class="btn btn-danger" onclick="deleteGrade('${g.id}')">Eliminar</button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openGradeModal(id = null) {
+  const grade = id ? DB.getOne('grades', id) : {};
+  const students = DB.get('students');
+  document.getElementById('modalTitle').textContent = id ? 'Editar calificación' : 'Nueva calificación';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveGrade(event, '${id || ''}')">
+      <div class="form-group"><label>Estudiante *</label><select name="studentId" required><option value="">Seleccionar</option>${students.map(s => `<option value="${s.id}" ${grade.studentId === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Evaluación</label><input name="evaluation" value="${grade.evaluation || ''}"></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Puntuación *</label><input type="number" name="score" value="${grade.score || ''}" required></div>
+        <div class="form-group"><label>Máximo *</label><input type="number" name="max" value="${grade.max || '100'}" required></div>
+      </div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveGrade(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  data.score = parseFloat(data.score);
+  data.max = parseFloat(data.max);
+  if (id) { DB.update('grades', id, data); showToast('Calificación actualizada'); }
+  else { DB.add('grades', data); showToast('Calificación creada'); }
+  closeModal(); render();
+}
+
+function editGrade(id) { openGradeModal(id); }
+function deleteGrade(id) { if (confirm('¿Eliminar esta calificación?')) { DB.delete('grades', id); showToast('Calificación eliminada'); render(); } }
+
+function renderAttendance() {
+  const attendance = DB.get('attendance');
+  const students = DB.get('students');
+  return `
+    <div class="card">
+      <h2>Asistencia</h2>
+      <button class="btn btn-primary" onclick="openAttendanceModal()">➕ Registrar asistencia</button>
+      ${attendance.length === 0 ? '<div class="empty"><div class="empty-icon">✅</div><p>No hay registros de asistencia</p></div>' : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Estudiante</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${attendance.map(a => {
+              const student = DB.getOne('students', a.studentId);
+              return `
+                <tr>
+                  <td>${a.date}</td>
+                  <td>${student?.name || '—'}</td>
+                  <td><span class="badge badge-${a.status === 'present' ? 'success' : a.status === 'absent' ? 'danger' : 'warning'}">${a.status}</span></td>
+                  <td><button class="btn btn-danger" onclick="deleteAttendance('${a.id}')">Eliminar</button></td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openAttendanceModal() {
+  const students = DB.get('students');
+  document.getElementById('modalTitle').textContent = 'Registrar asistencia';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveAttendance(event)">
+      <div class="form-group"><label>Fecha *</label><input type="date" name="date" value="${new Date().toISOString().split('T')[0]}" required></div>
+      <div class="form-group"><label>Estudiante *</label><select name="studentId" required><option value="">Seleccionar</option>${students.map(s => `<option value="${s.id}">${s.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Estado *</label><select name="status" required><option value="present">Presente</option><option value="absent">Ausente</option><option value="late">Tardanza</option></select></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveAttendance(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  DB.add('attendance', data);
+  showToast('Asistencia registrada');
+  closeModal(); render();
+}
+
+function deleteAttendance(id) { if (confirm('¿Eliminar este registro?')) { DB.delete('attendance', id); showToast('Registro eliminado'); render(); } }
+
+function renderAgenda() {
+  const events = DB.get('events');
+  return `
+    <div class="card">
+      <h2>Agenda</h2>
+      <button class="btn btn-primary" onclick="openEventModal()">➕ Nuevo evento</button>
+      ${events.length === 0 ? '<div class="empty"><div class="empty-icon">📅</div><p>No hay eventos registrados</p></div>' : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Hora</th><th>Título</th><th>Tipo</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${events.map(e => `
+              <tr>
+                <td>${e.date}</td>
+                <td>${e.time || '—'}</td>
+                <td>${e.title}</td>
+                <td><span class="badge badge-info">${e.type || 'general'}</span></td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editEvent('${e.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteEvent('${e.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openEventModal(id = null) {
+  const event = id ? DB.getOne('events', id) : {};
+  document.getElementById('modalTitle').textContent = id ? 'Editar evento' : 'Nuevo evento';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveEvent(event, '${id || ''}')">
+      <div class="form-group"><label>Título *</label><input name="title" value="${event.title || ''}" required></div>
+      <div class="grid-2">
+        <div class="form-group"><label>Fecha *</label><input type="date" name="date" value="${event.date || ''}" required></div>
+        <div class="form-group"><label>Hora</label><input type="time" name="time" value="${event.time || ''}"></div>
+      </div>
+      <div class="form-group"><label>Tipo</label><select name="type"><option value="class" ${event.type === 'class' ? 'selected' : ''}>Clase</option><option value="meeting" ${event.type === 'meeting' ? 'selected' : ''}>Reunión</option><option value="exam" ${event.type === 'exam' ? 'selected' : ''}>Examen</option><option value="other" ${event.type === 'other' ? 'selected' : ''}>Otro</option></select></div>
+      <div class="form-group"><label>Descripción</label><textarea name="description">${event.description || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveEvent(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('events', id, data); showToast('Evento actualizado'); }
+  else { DB.add('events', data); showToast('Evento creado'); }
+  closeModal(); render();
+}
+
+function editEvent(id) { openEventModal(id); }
+function deleteEvent(id) { if (confirm('¿Eliminar este evento?')) { DB.delete('events', id); showToast('Evento eliminado'); render(); } }
+
+function renderPlanning() {
+  const plans = DB.get('plans');
+  return `
+    <div class="card">
+      <h2>Planificación de clases</h2>
+      <button class="btn btn-primary" onclick="openPlanModal()">➕ Nuevo plan</button>
+      ${plans.length === 0 ? '<div class="empty"><div class="empty-icon">️</div><p>No hay planificaciones registradas</p></div>' : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Tema</th><th>Curso</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${plans.map(p => `
+              <tr>
+                <td>${p.date}</td>
+                <td>${p.topic}</td>
+                <td>${p.courseId ? DB.getOne('courses', p.courseId)?.name || '—' : '—'}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editPlan('${p.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deletePlan('${p.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openPlanModal(id = null) {
+  const plan = id ? DB.getOne('plans', id) : {};
+  const courses = DB.get('courses');
+  document.getElementById('modalTitle').textContent = id ? 'Editar plan' : 'Nuevo plan';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="savePlan(event, '${id || ''}')">
+      <div class="form-group"><label>Tema *</label><input name="topic" value="${plan.topic || ''}" required></div>
+      <div class="form-group"><label>Curso</label><select name="courseId"><option value="">Sin curso</option>${courses.map(c => `<option value="${c.id}" ${plan.courseId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Fecha</label><input type="date" name="date" value="${plan.date || ''}"></div>
+      <div class="form-group"><label>Objetivos</label><textarea name="objectives">${plan.objectives || ''}</textarea></div>
+      <div class="form-group"><label>Contenidos</label><textarea name="contents">${plan.contents || ''}</textarea></div>
+      <div class="form-group"><label>Actividades</label><textarea name="activities">${plan.activities || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function savePlan(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('plans', id, data); showToast('Plan actualizado'); }
+  else { DB.add('plans', data); showToast('Plan creado'); }
+  closeModal(); render();
+}
+
+function editPlan(id) { openPlanModal(id); }
+function deletePlan(id) { if (confirm('¿Eliminar este plan?')) { DB.delete('plans', id); showToast('Plan eliminado'); render(); } }
+
+function renderExams() {
+  const exams = DB.get('exams');
+  return `
+    <div class="card">
+      <h2>Exámenes y cuestionarios</h2>
+      <button class="btn btn-primary" onclick="openExamModal()">➕ Nuevo examen</button>
+      ${exams.length === 0 ? '<div class="empty"><div class="empty-icon">📋</div><p>No hay exámenes registrados</p></div>' : `
+        <table>
+          <thead><tr><th>Título</th><th>Curso</th><th>Fecha</th><th>Preguntas</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${exams.map(e => `
+              <tr>
+                <td>${e.title}</td>
+                <td>${e.courseId ? DB.getOne('courses', e.courseId)?.name || '—' : '—'}</td>
+                <td>${e.date || '—'}</td>
+                <td>${e.questions?.length || 0}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editExam('${e.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteExam('${e.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openExamModal(id = null) {
+  const exam = id ? DB.getOne('exams', id) : {};
+  const courses = DB.get('courses');
+  document.getElementById('modalTitle').textContent = id ? 'Editar examen' : 'Nuevo examen';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveExam(event, '${id || ''}')">
+      <div class="form-group"><label>Título *</label><input name="title" value="${exam.title || ''}" required></div>
+      <div class="form-group"><label>Curso</label><select name="courseId"><option value="">Sin curso</option>${courses.map(c => `<option value="${c.id}" ${exam.courseId === c.id ? 'selected' : ''}>${c.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Fecha</label><input type="date" name="date" value="${exam.date || ''}"></div>
+      <div class="form-group"><label>Descripción</label><textarea name="description">${exam.description || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveExam(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('exams', id, data); showToast('Examen actualizado'); }
+  else { DB.add('exams', { ...data, questions: [] }); showToast('Examen creado'); }
+  closeModal(); render();
+}
+
+function editExam(id) { openExamModal(id); }
+function deleteExam(id) { if (confirm('¿Eliminar este examen?')) { DB.delete('exams', id); showToast('Examen eliminado'); render(); } }
+
+function renderLibrary() {
+  const resources = DB.get('resources');
+  return `
+    <div class="card">
+      <h2>Biblioteca digital</h2>
+      <button class="btn btn-primary" onclick="openResourceModal()">➕ Nuevo recurso</button>
+      ${resources.length === 0 ? '<div class="empty"><div class="empty-icon">📖</div><p>No hay recursos registrados</p></div>' : `
+        <table>
+          <thead><tr><th>Título</th><th>Tipo</th><th>Materia</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${resources.map(r => `
+              <tr>
+                <td>${r.title}</td>
+                <td><span class="badge badge-info">${r.type || '—'}</span></td>
+                <td>${r.subject || '—'}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editResource('${r.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteResource('${r.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openResourceModal(id = null) {
+  const resource = id ? DB.getOne('resources', id) : {};
+  document.getElementById('modalTitle').textContent = id ? 'Editar recurso' : 'Nuevo recurso';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveResource(event, '${id || ''}')">
+      <div class="form-group"><label>Título *</label><input name="title" value="${resource.title || ''}" required></div>
+      <div class="form-group"><label>Tipo</label><select name="type"><option value="document" ${resource.type === 'document' ? 'selected' : ''}>Documento</option><option value="video" ${resource.type === 'video' ? 'selected' : ''}>Vídeo</option><option value="link" ${resource.type === 'link' ? 'selected' : ''}>Enlace</option><option value="book" ${resource.type === 'book' ? 'selected' : ''}>Libro</option></select></div>
+      <div class="form-group"><label>Materia</label><input name="subject" value="${resource.subject || ''}"></div>
+      <div class="form-group"><label>URL</label><input type="url" name="url" value="${resource.url || ''}"></div>
+      <div class="form-group"><label>Descripción</label><textarea name="description">${resource.description || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveResource(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('resources', id, data); showToast('Recurso actualizado'); }
+  else { DB.add('resources', data); showToast('Recurso creado'); }
+  closeModal(); render();
+}
+
+function editResource(id) { openResourceModal(id); }
+function deleteResource(id) { if (confirm('¿Eliminar este recurso?')) { DB.delete('resources', id); showToast('Recurso eliminado'); render(); } }
+
+function renderReports() {
+  const students = DB.get('students');
+  const grades = DB.get('grades');
+  const attendance = DB.get('attendance');
+  return `
+    <div class="card">
+      <h2>Informes y estadísticas</h2>
+      <div class="stats">
+        <div class="stat"><div class="number">${students.length}</div><div class="label">Total estudiantes</div></div>
+        <div class="stat"><div class="number">${grades.length}</div><div class="label">Calificaciones registradas</div></div>
+        <div class="stat"><div class="number">${attendance.length}</div><div class="label">Registros de asistencia</div></div>
+        <div class="stat"><div class="number">${grades.length ? (grades.reduce((sum, g) => sum + (g.score / g.max * 10), 0) / grades.length).toFixed(1) : '—'}</div><div class="label">Promedio general</div></div>
+      </div>
+      <button class="btn btn-primary" onclick="exportData()">📥 Exportar datos (JSON)</button>
+    </div>
+  `;
+}
+
+function renderAI() {
+  return `
+    <div class="card">
+      <h2>Asistente de Inteligencia Artificial</h2>
+      <p>Esta función requiere configuración de un servicio de IA externo. Por ahora, puedes usar las plantillas predefinidas.</p>
+      <div class="form-group">
+        <label>Tipo de documento</label>
+        <select id="aiType">
+          <option value="plan">Plan de clase</option>
+          <option value="exam">Examen</option>
+          <option value="rubric">Rúbrica</option>
+          <option value="feedback">Retroalimentación</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Tema</label>
+        <input type="text" id="aiTopic" placeholder="Ej: Fracciones para 5º grado">
+      </div>
+      <button class="btn btn-primary" onclick="generateTemplate()">Generar plantilla</button>
+      <div id="aiResult" style="margin-top: 20px;"></div>
+    </div>
+  `;
+}
+
+function generateTemplate() {
+  const type = document.getElementById('aiType').value;
+  const topic = document.getElementById('aiTopic').value;
+  if (!topic) { showToast('Ingresa un tema', 'error'); return; }
+  
+  const templates = {
+    plan: `# Plan de Clase: ${topic}\n\n## Objetivos\n- Objetivo 1\n- Objetivo 2\n\n## Contenidos\n- Contenido 1\n- Contenido 2\n\n## Actividades\n1. Actividad de inicio\n2. Actividad de desarrollo\n3. Actividad de cierre\n\n## Evaluación\n- Criterios de evaluación`,
+    exam: `# Examen: ${topic}\n\n## Instrucciones\nLee cuidadosamente cada pregunta.\n\n## Preguntas\n1. Pregunta de opción múltiple\n2. Pregunta de desarrollo\n3. Pregunta de análisis`,
+    rubric: `# Rúbrica: ${topic}\n\n| Criterio | Excelente | Bueno | Regular | Deficiente |\n|----------|-----------|-------|---------|------------|\n| Criterio 1 | 4 pts | 3 pts | 2 pts | 1 pt |`,
+    feedback: `# Retroalimentación: ${topic}\n\n## Fortalezas\n- Punto fuerte 1\n- Punto fuerte 2\n\n## Áreas de mejora\n- Área 1\n- Área 2\n\n## Recomendaciones\n- Recomendación 1`
+  };
+  
+  document.getElementById('aiResult').innerHTML = `<div class="card"><h3>Plantilla generada</h3><pre style="white-space: pre-wrap; background: #f5f5f5; padding: 15px; border-radius: 8px;">${templates[type]}</pre></div>`;
+  showToast('Plantilla generada');
+}
+
+function renderCorrection() {
+  const rubrics = DB.get('rubrics');
+  return `
+    <div class="card">
+      <h2>Corrección asistida</h2>
+      <button class="btn btn-primary" onclick="openRubricModal()">➕ Nueva rúbrica</button>
+      ${rubrics.length === 0 ? '<div class="empty"><div class="empty-icon">✍️</div><p>No hay rúbricas registradas</p></div>' : `
+        <table>
+          <thead><tr><th>Título</th><th>Criterios</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${rubrics.map(r => `
+              <tr>
+                <td>${r.title}</td>
+                <td>${r.criteria?.length || 0}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editRubric('${r.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteRubric('${r.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openRubricModal(id = null) {
+  const rubric = id ? DB.getOne('rubrics', id) : {};
+  document.getElementById('modalTitle').textContent = id ? 'Editar rúbrica' : 'Nueva rúbrica';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveRubric(event, '${id || ''}')">
+      <div class="form-group"><label>Título *</label><input name="title" value="${rubric.title || ''}" required></div>
+      <div class="form-group"><label>Criterios (uno por línea)</label><textarea name="criteria" rows="5">${rubric.criteria?.join('\n') || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveRubric(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  data.criteria = data.criteria.split('\n').filter(c => c.trim());
+  if (id) { DB.update('rubrics', id, data); showToast('Rúbrica actualizada'); }
+  else { DB.add('rubrics', data); showToast('Rúbrica creada'); }
+  closeModal(); render();
+}
+
+function editRubric(id) { openRubricModal(id); }
+function deleteRubric(id) { if (confirm('¿Eliminar esta rúbrica?')) { DB.delete('rubrics', id); showToast('Rúbrica eliminada'); render(); } }
+
+function renderCommunication() {
+  const messages = DB.get('messages');
+  return `
+    <div class="card">
+      <h2>Comunicación</h2>
+      <button class="btn btn-primary" onclick="openMessageModal()">➕ Nuevo mensaje</button>
+      ${messages.length === 0 ? '<div class="empty"><div class="empty-icon">💬</div><p>No hay mensajes registrados</p></div>' : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Destinatario</th><th>Asunto</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${messages.map(m => `
+              <tr>
+                <td>${m.date}</td>
+                <td>${m.recipient}</td>
+                <td>${m.subject}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="viewMessage('${m.id}')">Ver</button>
+                  <button class="btn btn-danger" onclick="deleteMessage('${m.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openMessageModal() {
+  document.getElementById('modalTitle').textContent = 'Nuevo mensaje';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveMessage(event)">
+      <div class="form-group"><label>Destinatario *</label><input name="recipient" required></div>
+      <div class="form-group"><label>Asunto *</label><input name="subject" required></div>
+      <div class="form-group"><label>Mensaje *</label><textarea name="content" rows="5" required></textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveMessage(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  data.date = new Date().toISOString().split('T')[0];
+  DB.add('messages', data);
+  showToast('Mensaje guardado');
+  closeModal(); render();
+}
+
+function viewMessage(id) {
+  const msg = DB.getOne('messages', id);
+  document.getElementById('modalTitle').textContent = msg.subject;
+  document.getElementById('modalBody').innerHTML = `
+    <p><strong>Destinatario:</strong> ${msg.recipient}</p>
+    <p><strong>Fecha:</strong> ${msg.date}</p>
+    <hr>
+    <p>${msg.content}</p>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function deleteMessage(id) { if (confirm('¿Eliminar este mensaje?')) { DB.delete('messages', id); showToast('Mensaje eliminado'); render(); } }
+
+function renderTracking() {
+  const interventions = DB.get('interventions');
+  return `
+    <div class="card">
+      <h2>Seguimiento y apoyo</h2>
+      <button class="btn btn-primary" onclick="openInterventionModal()">➕ Nueva intervención</button>
+      ${interventions.length === 0 ? '<div class="empty"><div class="empty-icon">🎯</div><p>No hay intervenciones registradas</p></div>' : `
+        <table>
+          <thead><tr><th>Fecha</th><th>Estudiante</th><th>Tipo</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${interventions.map(i => `
+              <tr>
+                <td>${i.date}</td>
+                <td>${i.studentId ? DB.getOne('students', i.studentId)?.name || '—' : '—'}</td>
+                <td>${i.type}</td>
+                <td>
+                  <button class="btn btn-secondary" onclick="editIntervention('${i.id}')">Editar</button>
+                  <button class="btn btn-danger" onclick="deleteIntervention('${i.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openInterventionModal(id = null) {
+  const intervention = id ? DB.getOne('interventions', id) : {};
+  const students = DB.get('students');
+  document.getElementById('modalTitle').textContent = id ? 'Editar intervención' : 'Nueva intervención';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveIntervention(event, '${id || ''}')">
+      <div class="form-group"><label>Estudiante *</label><select name="studentId" required><option value="">Seleccionar</option>${students.map(s => `<option value="${s.id}" ${intervention.studentId === s.id ? 'selected' : ''}>${s.name}</option>`).join('')}</select></div>
+      <div class="form-group"><label>Fecha</label><input type="date" name="date" value="${intervention.date || new Date().toISOString().split('T')[0]}"></div>
+      <div class="form-group"><label>Tipo</label><select name="type"><option value="academic" ${intervention.type === 'academic' ? 'selected' : ''}>Académico</option><option value="behavioral" ${intervention.type === 'behavioral' ? 'selected' : ''}>Conductual</option><option value="personal" ${intervention.type === 'personal' ? 'selected' : ''}>Personal</option></select></div>
+      <div class="form-group"><label>Descripción</label><textarea name="description">${intervention.description || ''}</textarea></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveIntervention(e, id) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  if (id) { DB.update('interventions', id, data); showToast('Intervención actualizada'); }
+  else { DB.add('interventions', data); showToast('Intervención creada'); }
+  closeModal(); render();
+}
+
+function editIntervention(id) { openInterventionModal(id); }
+function deleteIntervention(id) { if (confirm('¿Eliminar esta intervención?')) { DB.delete('interventions', id); showToast('Intervención eliminada'); render(); } }
+
+function renderProductivity() {
+  const todos = DB.get('todos');
+  return `
+    <div class="card">
+      <h2>Productividad</h2>
+      <button class="btn btn-primary" onclick="openTodoModal()">➕ Nueva tarea</button>
+      ${todos.length === 0 ? '<div class="empty"><div class="empty-icon">⚡</div><p>No hay tareas pendientes</p></div>' : `
+        <table>
+          <thead><tr><th>Tarea</th><th>Prioridad</th><th>Estado</th><th>Acciones</th></tr></thead>
+          <tbody>
+            ${todos.map(t => `
+              <tr>
+                <td>${t.title}</td>
+                <td><span class="badge badge-${t.priority === 'high' ? 'danger' : t.priority === 'medium' ? 'warning' : 'success'}">${t.priority}</span></td>
+                <td><span class="badge badge-${t.completed ? 'success' : 'warning'}">${t.completed ? 'Completada' : 'Pendiente'}</span></td>
+                <td>
+                  <button class="btn btn-secondary" onclick="toggleTodo('${t.id}')">${t.completed ? 'Desmarcar' : 'Completar'}</button>
+                  <button class="btn btn-danger" onclick="deleteTodo('${t.id}')">Eliminar</button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `}
+    </div>
+  `;
+}
+
+function openTodoModal() {
+  document.getElementById('modalTitle').textContent = 'Nueva tarea';
+  document.getElementById('modalBody').innerHTML = `
+    <form onsubmit="saveTodo(event)">
+      <div class="form-group"><label>Título *</label><input name="title" required></div>
+      <div class="form-group"><label>Prioridad</label><select name="priority"><option value="low">Baja</option><option value="medium">Media</option><option value="high">Alta</option></select></div>
+      <button type="submit" class="btn btn-primary">Guardar</button>
+    </form>
+  `;
+  document.getElementById('modal').classList.add('active');
+}
+
+function saveTodo(e) {
+  e.preventDefault();
+  const data = Object.fromEntries(new FormData(e.target));
+  data.completed = false;
+  DB.add('todos', data);
+  showToast('Tarea creada');
+  closeModal(); render();
+}
+
+function toggleTodo(id) {
+  const todo = DB.getOne('todos', id);
+  DB.update('todos', id, { completed: !todo.completed });
+  render();
+}
+
+function deleteTodo(id) { if (confirm('¿Eliminar esta tarea?')) { DB.delete('todos', id); showToast('Tarea eliminada'); render(); } }
+
+function renderBackups() {
+  return `
+    <div class="card">
+      <h2>Copias de seguridad</h2>
+      <p>Exporta o importa todos tus datos en formato JSON.</p>
+      <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+        <button class="btn btn-primary" onclick="exportData()">📥 Exportar datos</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📤 Importar datos</button>
+        <input type="file" id="importFile" accept=".json" style="display: none;" onchange="importData(event)">
+      </div>
+    </div>
+  `;
+}
+
+function exportData() {
+  const data = {
+    students: DB.get('students'),
+    courses: DB.get('courses'),
+    tasks: DB.get('tasks'),
+    grades: DB.get('grades'),
+    attendance: DB.get('attendance'),
+    events: DB.get('events'),
+    plans: DB.get('plans'),
+    exams: DB.get('exams'),
+    resources: DB.get('resources'),
+    rubrics: DB.get('rubrics'),
+    messages: DB.get('messages'),
+    interventions: DB.get('interventions'),
+    todos: DB.get('todos'),
+    exportDate: new Date().toISOString()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `profefacil_backup_${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast('Datos exportados');
+}
+
+function importData(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    try {
+      const data = JSON.parse(event.target.result);
+      if (confirm('¿Importar estos datos? Se reemplazarán los datos actuales.')) {
+        Object.keys(data).forEach(key => {
+          if (key !== 'exportDate' && Array.isArray(data[key])) {
+            DB.set(key, data[key]);
+          }
+        });
+        showToast('Datos importados');
+        render();
+      }
+    } catch (err) {
+      showToast('Error al importar: archivo inválido', 'error');
+    }
+  };
+  reader.readAsText(file);
+}
+
+function renderPortal() {
+  return `
+    <div class="card">
+      <h2>Portal del estudiante y familias</h2>
+      <p>Esta función permite a estudiantes y familias consultar información básica como tareas, calificaciones y avisos.</p>
+      <p><strong>Nota:</strong> Esta es una vista de demostración. En una implementación real, requeriría autenticación separada.</p>
+    </div>
+  `;
+}
+
+function renderConfig() {
+  return `
+    <div class="card">
+      <h2>Configuración</h2>
+      <div class="form-group">
+        <label>Nombre del profesor</label>
+        <input type="text" id="teacherName" value="${localStorage.getItem('pf_teacherName') || ''}" onchange="localStorage.setItem('pf_teacherName', this.value)">
+      </div>
+      <div class="form-group">
+        <label>Centro educativo</label>
+        <input type="text" id="schoolName" value="${localStorage.getItem('pf_schoolName') || ''}" onchange="localStorage.setItem('pf_schoolName', this.value)">
+      </div>
+      <button class="btn btn-danger" onclick="if(confirm('¿Borrar TODOS los datos? Esta acción no se puede deshacer.')) { Object.keys(localStorage).filter(k => k.startsWith('pf_')).forEach(k => localStorage.removeItem(k)); showToast('Datos eliminados'); render(); }">🗑️ Borrar todos los datos</button>
+    </div>
+  `;
+}
+
+function closeModal() { document.getElementById('modal').classList.remove('active'); }
+
+function showToast(message, type = 'success') {
+  const toast = document.createElement('div');
+  toast.className = 'toast';
+  toast.textContent = message;
+  if (type === 'error') toast.style.background = '#c62828';
+  document.body.appendChild(toast);
+  setTimeout(() => toast.remove(), 3000);
+}
+
+// Inicializar
+render();
+</script>
+</body>
+  </html>
